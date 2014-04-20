@@ -50,13 +50,20 @@ function CreerFichierApache {
 	# Créer le fichier
 	local fichier='/etc/apache2/sites-available/'$nomProjet'.'$extension
 
+	if [ -z $sousDossier ]
+	then
+		local url=$nomProjet
+	else
+		local url=$sousDossier'/'$nomProjet
+	fi
+
 	# Écrire la configuration dans le fichier
 	echo '<VirtualHost 127.0.0.1:8082>
 	ServerName www.'$nomProjet'.'$extension'
 	ServerAlias www.'$nomProjet'.'$extension'
 	ServerAdmin contact@'$nomProjet'.'$extension'
 
-	DocumentRoot /var/www/'$nomProjet'
+	DocumentRoot /var/www/'$url'
 
 	ErrorLog ${APACHE_LOG_DIR}/'$nomProjet'/site_error.log
 	CustomLog ${APACHE_LOG_DIR}/'$nomProjet'/site_access.log combined
@@ -81,6 +88,13 @@ function CreerFichierNginx {
 	# Créer le fichier
 	local fichier='/etc/nginx/sites-available/'$nomProjet'.'$extension
 
+	if [ -z $sousDossier ]
+	then
+		local url=$nomProjet
+	else
+		local url=$sousDossier'/'$nomProjet
+	fi
+
 	# Écrire la configuration dans le fichier
 	echo 'server {
 	listen   80;
@@ -95,11 +109,11 @@ function CreerFichierNginx {
 	location / {
 		proxy_pass         http://127.0.0.1:8082/;
 		include  /etc/nginx/conf.d/proxy.conf;
-		root /var/www/'$nomProjet'/site;
+		root /var/www/'$url'/site;
 	}
 
 	location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|txt|srt|swf)$ {
-		root  /var/www/'$nomProjet'/site/;
+		root  /var/www/'$url'/site/;
 		expires           30d;
 	}
 }' > $fichier
