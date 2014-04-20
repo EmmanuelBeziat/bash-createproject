@@ -14,7 +14,7 @@ Un script bash qui me permet de créer un nouveau projet web en créant directem
 C'est évidemment très spécifique à ma configuration.
 
 ##Comment ça marche ?
-Idéalement, le mettre dans un des répertoires du PATH, moi j'ai choisi ```/usr/local/bin```. Ensuite, faire un ```chmod -x newsite.sh``` pour le rendre exécutable.
+Idéalement, le mettre dans un des répertoires du PATH, moi j'ai choisi ```/usr/local/bin```. Ensuite, faire un ```chmod +x newsite.sh``` pour le rendre exécutable.
 
 Ensuite, il n'y a qu'à l'appeler :
 ```Shell
