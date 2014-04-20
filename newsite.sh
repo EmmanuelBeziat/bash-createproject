@@ -60,6 +60,13 @@ function CreerFichierApache {
 
 	ErrorLog ${APACHE_LOG_DIR}/'$nomProjet'/site_error.log
 	CustomLog ${APACHE_LOG_DIR}/'$nomProjet'/site_access.log combined
+</VirtualHost>
+
+<VirtualHost 127.0.0.1:8082>
+	ServerName '$nomProjet'.'$extension'
+	ServerAlias '$nomProjet'.'$extension'
+
+	Redirect permanent / http://www.'$nomProjet'.'$extension'/
 </VirtualHost>' > $fichier
 
 	# Activer le fichier dans la configuration Apache
