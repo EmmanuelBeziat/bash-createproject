@@ -9,6 +9,13 @@ nomProjet=$1
 extension=$2
 sousDossier=$3
 
+if [ -z $sousDossier ]
+then
+	cheminComplet=$nomProjet
+else
+	cheminComplet=$sousDossier'/'$nomProjet
+fi
+
 # Vérification de projet
 function VerifierNomProjet {
 	# S'il n'ya a pas de nom, en demande un
@@ -32,12 +39,8 @@ function VerifierNomProjet {
 
 # Créer le répertoire www
 function CreerDossierWeb {
-	if [ -z $sousDossier ]
-	then
-		mkdir -p "/var/www/$nomProjet/"
-	else
-		mkdir -p  "/var/www/$sousDossier/$nomProjet/"
-	fi
+	mkdir -p  "/var/www/$cheminComplet/"
+	
 }
 
 #Créer le répertoire log
@@ -50,20 +53,13 @@ function CreerFichierApache {
 	# Créer le fichier
 	local fichier='/etc/apache2/sites-available/'$nomProjet'.'$extension
 
-	if [ -z $sousDossier ]
-	then
-		local url=$nomProjet
-	else
-		local url=$sousDossier'/'$nomProjet
-	fi
-
 	# Écrire la configuration dans le fichier
 	echo '<VirtualHost 127.0.0.1:8082>
 	ServerName www.'$nomProjet'.'$extension'
 	ServerAlias www.'$nomProjet'.'$extension'
 	ServerAdmin contact@'$nomProjet'.'$extension'
 
-	DocumentRoot /var/www/'$url'
+	DocumentRoot /var/www/'$cheminComplet'
 
 	ErrorLog ${APACHE_LOG_DIR}/'$nomProjet'/site_error.log
 	CustomLog ${APACHE_LOG_DIR}/'$nomProjet'/site_access.log combined
@@ -88,13 +84,6 @@ function CreerFichierNginx {
 	# Créer le fichier
 	local fichier='/etc/nginx/sites-available/'$nomProjet'.'$extension
 
-	if [ -z $sousDossier ]
-	then
-		local url=$nomProjet
-	else
-		local url=$sousDossier'/'$nomProjet
-	fi
-
 	# Écrire la configuration dans le fichier
 	echo 'server {
 	listen   80;
@@ -109,11 +98,11 @@ function CreerFichierNginx {
 	location / {
 		proxy_pass         http://127.0.0.1:8082/;
 		include  /etc/nginx/conf.d/proxy.conf;
-		root /var/www/'$url'/site;
+		root /var/www/'$cheminComplet'/site;
 	}
 
 	location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|txt|srt|swf)$ {
-		root  /var/www/'$url'/site/;
+		root  /var/www/'$cheminComplet'/site/;
 		expires           30d;
 	}
 }' > $fichier
