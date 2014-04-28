@@ -59,7 +59,7 @@ function CreerFichierApache {
 	ServerAlias www.'$nomProjet'.'$extension'
 	ServerAdmin contact@'$nomProjet'.'$extension'
 
-	DocumentRoot /var/www/'$cheminComplet'
+	DocumentRoot /var/www/'$cheminComplet'/site
 
 	ErrorLog ${APACHE_LOG_DIR}/'$nomProjet'/site_error.log
 	CustomLog ${APACHE_LOG_DIR}/'$nomProjet'/site_access.log combined
