@@ -40,7 +40,6 @@ function VerifierNomProjet {
 # Créer le répertoire www
 function CreerDossierWeb {
 	mkdir -p  "/var/www/$cheminComplet/"
-	
 }
 
 #Créer le répertoire log
