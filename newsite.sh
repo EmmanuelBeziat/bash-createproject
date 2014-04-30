@@ -85,24 +85,24 @@ function CreerFichierNginx {
 
 	# Écrire la configuration dans le fichier
 	echo 'server {
-	listen   80;
-	server_name www.'$nomProjet'.'$extension';
-	#access_log  /var/log/'$nomProjet'.access.log;
- 	#error_log  /var/log/'$nomProjet'.nginx_error.log info;
+	listen	80;
+	server_name	www.'$nomProjet'.'$extension';
+	#access_log	/var/log/'$nomProjet'.access.log;
+ 	#error_log	/var/log/'$nomProjet'.nginx_error.log info;
 
 	access_log	off;
 
-	location = /robots.txt  { access_log off; log_not_found off; }
-	location = /favicon.ico { access_log off; log_not_found off; }
+	location = /robots.txt	{ access_log off; log_not_found off; }
+	location = /favicon.ico	{ access_log off; log_not_found off; }
 	location / {
-		proxy_pass         http://127.0.0.1:8082/;
-		include  /etc/nginx/conf.d/proxy.conf;
+		proxy_pass http://127.0.0.1:8082/;
+		include /etc/nginx/conf.d/proxy.conf;
 		root /var/www/'$cheminComplet'/site;
 	}
 
 	location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|txt|srt|swf)$ {
-		root  /var/www/'$cheminComplet'/site/;
-		expires           30d;
+		root /var/www/'$cheminComplet'/site/;
+		expires 30d;
 	}
 }' > $fichier
 
