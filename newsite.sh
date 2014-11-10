@@ -50,7 +50,7 @@ function CreerDossierLog {
 # Créer le fichier de configuration Apache
 function CreerFichierApache {
 	# Créer le fichier
-	local fichier='/etc/apache2/sites-available/'$nomProjet'.'$extension
+	local fichier='/etc/apache2/sites-available/'$nomProjet
 
 	# Écrire la configuration dans le fichier
 	echo '<VirtualHost 127.0.0.1:8082>
@@ -58,7 +58,7 @@ function CreerFichierApache {
 	ServerAlias www.'$nomProjet'.'$extension'
 	ServerAdmin contact@'$nomProjet'.'$extension'
 
-	DocumentRoot /var/www/'$cheminComplet'/site
+	DocumentRoot /var/www/'$cheminComplet'
 
 	ErrorLog ${APACHE_LOG_DIR}/'$nomProjet'/site_error.log
 	CustomLog ${APACHE_LOG_DIR}/'$nomProjet'/site_access.log combined
@@ -72,7 +72,7 @@ function CreerFichierApache {
 </VirtualHost>' > $fichier
 
 	# Activer le fichier dans la configuration Apache
-	a2ensite $nomProjet.$extension
+	a2ensite $nomProjet
 
 	#relancer Apache
 	service apache2 restart
@@ -81,14 +81,14 @@ function CreerFichierApache {
 # Créer le fichier de configuration Nginx
 function CreerFichierNginx {
 	# Créer le fichier
-	local fichier='/etc/nginx/sites-available/'$nomProjet'.'$extension
+	local fichier='/etc/nginx/sites-available/'$nomProjet
 
 	# Écrire la configuration dans le fichier
 	echo 'server {
 	listen	80;
 	server_name	www.'$nomProjet'.'$extension';
 	#access_log	/var/log/'$nomProjet'.access.log;
- 	#error_log	/var/log/'$nomProjet'.nginx_error.log info;
+	#error_log	/var/log/'$nomProjet'.nginx_error.log info;
 
 	access_log	off;
 
@@ -97,17 +97,17 @@ function CreerFichierNginx {
 	location / {
 		proxy_pass http://127.0.0.1:8082/;
 		include /etc/nginx/conf.d/proxy.conf;
-		root /var/www/'$cheminComplet'/site;
+		root /var/www/'$cheminComplet';
 	}
 
 	location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|txt|srt|swf)$ {
-		root /var/www/'$cheminComplet'/site/;
+		root /var/www/'$cheminComplet'/;
 		expires 30d;
 	}
 }' > $fichier
 
 	# Activer le fichier dans la configuration Nginx
-	ln -s /etc/nginx/sites-available/$nomProjet.$extension /etc/nginx/sites-enabled/
+	ln -s /etc/nginx/sites-available/$nomProjet /etc/nginx/sites-enabled/
 
 	#relancer Nginx
 	service nginx restart
