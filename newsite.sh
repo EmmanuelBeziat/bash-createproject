@@ -39,7 +39,7 @@ function VerifierNomProjet {
 
 # Créer le répertoire www
 function CreerDossierWeb {
-	mkdir -p  "/var/www/$cheminComplet/"
+	mkdir -p  "/var/www/$cheminComplet/site"
 }
 
 #Créer le répertoire log
@@ -58,7 +58,7 @@ function CreerFichierApache {
 	ServerAlias www.'$nomProjet'.'$extension'
 	ServerAdmin contact@'$nomProjet'.'$extension'
 
-	DocumentRoot /var/www/'$cheminComplet'
+	DocumentRoot /var/www/'$cheminComplet'/site
 
 	ErrorLog ${APACHE_LOG_DIR}/'$nomProjet'/site_error.log
 	CustomLog ${APACHE_LOG_DIR}/'$nomProjet'/site_access.log combined
@@ -97,11 +97,11 @@ function CreerFichierNginx {
 	location / {
 		proxy_pass http://127.0.0.1:8082/;
 		include /etc/nginx/conf.d/proxy.conf;
-		root /var/www/'$cheminComplet';
+		root /var/www/'$cheminComplet'/site;
 	}
 
 	location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|txt|srt|swf)$ {
-		root /var/www/'$cheminComplet'/;
+		root /var/www/'$cheminComplet'/site/;
 		expires 30d;
 	}
 }' > $fichier
