@@ -115,19 +115,25 @@ function CreerFichierNginx {
 
 # Inifialiser la création
 function CreerProjet {
+	echo "Lancement de la création"
+
 	# Vérifier que le nom soit bon
 	VerifierNomProjet
 
 	# Créer le dossier log
+	echo "Création du dossier log"
 	CreerDossierLog
 
 	# Créer le dossier web
+	echo "Création du dossier web"
 	CreerDossierWeb
 
 	# Créer fichier de configuration Apache
+	echo "Création du fichier de configuration Apache"
 	CreerFichierApache
 
 	# Créer fichier de configuration Nginx
+	echo "Création du fichier de configuration Nginx"
 	CreerFichierNginx
 
 	echo "C'est terminé !"
