@@ -8,9 +8,6 @@
 nomProjet=$1
 extension=$2
 sousDossier=$3
-apacheConf='/etc/apache2/sites-available'
-nginxConf='/etc/apache2/sites-available'
-www='/var/www'
 
 if [ -z $sousDossier ]
 then
@@ -53,20 +50,22 @@ function CreerDossierLog {
 # Créer le fichier de configuration Apache
 function CreerFichierApache {
 	# Créer le fichier
-	local fichier=$apacheConf/$nomProjet
+	local fichier='/etc/apache2/sites-available/'$nomProjet'.conf'
 
 	# Écrire la configuration dans le fichier
-	echo '<VirtualHost 127.0.0.1:8082>
+	echo '# Site global
+<VirtualHost 127.0.0.1:8082>
 	ServerName www.'$nomProjet'.'$extension'
 	ServerAlias www.'$nomProjet'.'$extension'
 	ServerAdmin contact@'$nomProjet'.'$extension'
 
-	DocumentRoot '$www'/'$cheminComplet'/site
+	DocumentRoot /var/www/'$cheminComplet'/site
 
 	ErrorLog ${APACHE_LOG_DIR}/'$nomProjet'/site_error.log
 	CustomLog ${APACHE_LOG_DIR}/'$nomProjet'/site_access.log combined
 </VirtualHost>
 
+# Base
 <VirtualHost 127.0.0.1:8082>
 	ServerName '$nomProjet'.'$extension'
 	ServerAlias '$nomProjet'.'$extension'
@@ -75,7 +74,7 @@ function CreerFichierApache {
 </VirtualHost>' > $fichier
 
 	# Activer le fichier dans la configuration Apache
-	a2ensite $nomProjet
+	a2ensite $nomProjet.conf
 
 	#relancer Apache
 	service apache2 restart
@@ -84,10 +83,11 @@ function CreerFichierApache {
 # Créer le fichier de configuration Nginx
 function CreerFichierNginx {
 	# Créer le fichier
-	local fichier=$nginxConf/$nomProjet
+	local fichier='/etc/nginx/sites-available/'$nomProjet'.nconf'
 
 	# Écrire la configuration dans le fichier
-	echo 'server {
+	echo '# Site global
+server {
 	listen	80;
 	server_name	www.'$nomProjet'.'$extension';
 	#access_log	/var/log/'$nomProjet'.access.log;
@@ -100,80 +100,20 @@ function CreerFichierNginx {
 	location / {
 		proxy_pass http://127.0.0.1:8082/;
 		include /etc/nginx/conf.d/proxy.conf;
-		root '$www/$cheminComplet'/site;
+		root /var/www/'$cheminComplet'/site;
 	}
 
 	location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|txt|srt|swf)$ {
-		root '$www/$cheminComplet'/site/;
+		root /var/www/'$cheminComplet'/site/;
 		expires 30d;
 	}
 }' > $fichier
 
 	# Activer le fichier dans la configuration Nginx
-	ln -s $nginxConf/$nomProjet $nginxConf/
+	ln -s /etc/nginx/sites-available/$nomProjet.nconf /etc/nginx/sites-enabled/
 
 	#relancer Nginx
 	service nginx restart
-}
-
-# Installer WordPress
-function InstallerWordpress {
-	# Demander si l'utilisateur souhaite installer WordPress
-	read -ep 'Installer WordPress ? (y/n) : '
-
-	if [[ $REPLY == [yY] ]]; then
-		WPURL='https://fr.wordpress.org/latest-fr_FR.tar.gz'
-
-		echo 'Téléchargement de WordPress depuis $WPURL...'
-		echo
-		mkdir '/var/www/'$cheminComplet'/site/'
-		curl '/var/www/'$cheminComplet'/site/' | tar -xz -C $www/$cheminComplet/site --strip 1
-		RET=$?
-		echo
-
-		if [ $RET != 0 ]; then
-			echo "*** ECHEC"
-			revert
-			exit 1
-		fi
-
-		echo "Permissions 644..."
-		chmod -R 644 $www/$cheminComplet
-		chmod -R g+X $www/$cheminComplet
-
-		echo "Création d'un fichier .htaccess vide..."
-		touch $www/$cheminComplet/.htaccess
-		chmod g+w $www/$cheminComplet/.htaccess
-
-		echo "Persmissions sur wp-content..."
-		chmod -R g+w $www/$cheminComplet/wp-content
-
-		echo "Suppression de plugin Hello Dolly"
-		rm $www/$cheminComplet/wp-content/plugins/hello.php
-
-		echo "Configuration de wp-config.php..."
-		mv $www/$cheminComplet/wp-config-sample.php $www/$cheminComplet/wp-config.php
-
-		LINESTART=$(grep -n "define('AUTH_KEY'" $www/$cheminComplet/wp-config.php | cut -d: -f1)
-		LINEEND=$(echo "$SALT" | wc -l)
-		LINEEND=$(($LINESTART + $LINEEND - 1))
-
-		sed -i "${LINESTART},${LINEEND}d" $www/$cheminComplet/wp-config.php
-
-		while read -r LINE; do
-			sed -i "${LINESTART}i $LINE" $www/$cheminComplet/wp-config.php
-			LINESTART=$(($LINESTART + 1))
-		done <<< "$SALT"
-
-		echo "Configurer FS_METHOD sur direct..."
-		LINESTART=$(grep -n "define('WP_DEBUG'" $www/$cheminComplet/wp-config.php | cut -d: -f1)
-		sed -i "${LINESTART}a define('FS_METHOD', 'direct');" $www/$cheminComplet/wp-config.php
-
-		echo "Configuration de WP_HOME et WP_SITEURL.."
-		sed -i "${LINESTART}a define('WP_HOME', 'http://' . \$_SERVER['HTTP_HOST']);" $www/$cheminComplet/wp-config.php
-		sed -i "${LINESTART}a define('WP_SITEURL', 'http://' . \$_SERVER['HTTP_HOST']);" $www/$cheminComplet/wp-config.php
-	fi
-
 }
 
 # Inifialiser la création
@@ -198,9 +138,6 @@ function CreerProjet {
 	# Créer fichier de configuration Nginx
 	echo "Création du fichier de configuration Nginx"
 	CreerFichierNginx
-
-	# Installer WordPress
-	InstallerWordpress
 
 	echo "C'est terminé !"
 }
