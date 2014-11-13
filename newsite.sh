@@ -50,10 +50,11 @@ function CreerDossierLog {
 # Créer le fichier de configuration Apache
 function CreerFichierApache {
 	# Créer le fichier
-	local fichier='/etc/apache2/sites-available/'$nomProjet
+	local fichier='/etc/apache2/sites-available/'$nomProjet'.conf'
 
 	# Écrire la configuration dans le fichier
-	echo '<VirtualHost 127.0.0.1:8082>
+	echo '# Site global
+<VirtualHost 127.0.0.1:8082>
 	ServerName www.'$nomProjet'.'$extension'
 	ServerAlias www.'$nomProjet'.'$extension'
 	ServerAdmin contact@'$nomProjet'.'$extension'
@@ -64,6 +65,7 @@ function CreerFichierApache {
 	CustomLog ${APACHE_LOG_DIR}/'$nomProjet'/site_access.log combined
 </VirtualHost>
 
+# Base
 <VirtualHost 127.0.0.1:8082>
 	ServerName '$nomProjet'.'$extension'
 	ServerAlias '$nomProjet'.'$extension'
@@ -72,7 +74,7 @@ function CreerFichierApache {
 </VirtualHost>' > $fichier
 
 	# Activer le fichier dans la configuration Apache
-	a2ensite $nomProjet
+	a2ensite $nomProjet.conf
 
 	#relancer Apache
 	service apache2 restart
@@ -81,10 +83,11 @@ function CreerFichierApache {
 # Créer le fichier de configuration Nginx
 function CreerFichierNginx {
 	# Créer le fichier
-	local fichier='/etc/nginx/sites-available/'$nomProjet
+	local fichier='/etc/nginx/sites-available/'$nomProjet'.nconf'
 
 	# Écrire la configuration dans le fichier
-	echo 'server {
+	echo '# Site global
+server {
 	listen	80;
 	server_name	www.'$nomProjet'.'$extension';
 	#access_log	/var/log/'$nomProjet'.access.log;
@@ -107,7 +110,7 @@ function CreerFichierNginx {
 }' > $fichier
 
 	# Activer le fichier dans la configuration Nginx
-	ln -s /etc/nginx/sites-available/$nomProjet /etc/nginx/sites-enabled/
+	ln -s /etc/nginx/sites-available/$nomProjet.nconf /etc/nginx/sites-enabled/
 
 	#relancer Nginx
 	service nginx restart
