@@ -107,6 +107,14 @@ server {
 		root /var/www/'$cheminComplet'/site/;
 		expires 30d;
 	}
+}
+
+# Redirection
+server {
+	listen	80;
+	server_name	www.'$nomProjet'.'$extension';
+
+	rewrite ^/(.*) http://www.'$nomProjet'.'$extension'/$1 permanent;
 }' > $fichier
 
 	# Activer le fichier dans la configuration Nginx
